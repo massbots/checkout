@@ -85,7 +85,7 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	data, err := json.Marshal(Request{
 		Description:  payment.Comment,
 		Amount:       Amount{Value: payment.Amount, Currency: payment.Currency},
-		Confirmation: Confirmation{Type: "redirect", ReturnURL: payment.ReturnURL},
+		Confirmation: Confirmation{Type: "redirect", ReturnURL: payment.SuccessURL},
 		Capture:      true,
 	})
 	if err != nil {

@@ -8,6 +8,7 @@ The goal of `checkout` package is to unite popular acquiring providers for quick
 Feel free to request a missing provider by creating an issue, or adding one you'd like to integrate by making a pull request.
 
 - [Qiwi](https://p2p.qiwi.com)
+- [YooMoney](https://yoomoney.ru)
 - [YooKassa](https://yookassa.ru)
 - [Anypay](https://anypay.io)
 - [Enotio](https://enot.io)

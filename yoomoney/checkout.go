@@ -1,0 +1,123 @@
+package yoomoney
+
+import (
+	"crypto/sha1"
+	"encoding/hex"
+	"log"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
+	"github.com/shopspring/decimal"
+	"go.massbots.xyz/checkout"
+)
+
+const BaseURL = "https://yoomoney.ru/quickpay/confirm.xml?"
+
+// Payment types.
+const (
+	PC = "PC" // wallet
+	AC = "AC" // card
+	MC = "MC" // mobile
+)
+
+type (
+	// Checkout implements checkout.Checkout.
+	Checkout struct {
+		Receiver string
+	}
+)
+
+// WithCommission returns the given amount summed with the corresponding
+// to the payment type commission.
+func WithCommission(pt, amount string) string {
+	a, _ := decimal.NewFromString(amount)
+
+	switch pt {
+	case PC:
+		const commission float64 = 0.005 / 1.005
+		return a.Sub(a.Mul(decimal.NewFromFloat(commission))).String()
+	case AC:
+		const commission float64 = 1 - 0.02
+		return a.Mul(decimal.NewFromFloat(commission)).String()
+	}
+
+	return amount
+}
+
+// Request implements Checkout.Request.
+//
+// Does not support Metadata and AccountID. You should associate
+// this information with the payment ID on your own.
+//
+func (c Checkout) Request(payment checkout.Payment) (string, error) {
+	params := url.Values{}
+	params.Set("receiver", c.Receiver)
+	params.Set("quickpay-form", "shop")
+	params.Set("paymentType", payment.Type)
+	params.Set("targets", payment.Target)
+	params.Set("sum", payment.Amount)
+	params.Set("comment", payment.Comment)
+	params.Set("label", payment.ID)
+	params.Set("successURL", payment.SuccessURL)
+
+	return BaseURL + params.Encode(), nil
+}
+
+var (
+	timeLayout = "02.01.2006T15:04:05+07:00"
+	timeLoc, _ = time.LoadLocation("Europe/Moscow")
+)
+
+func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			log.Println("checkout/yoomoney:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		paidAt, err := time.ParseInLocation(timeLayout, r.FormValue("datetime"), timeLoc)
+		if err != nil {
+			log.Println("checkout/yoomoney:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		payment := checkout.Payment{
+			ID:       r.FormValue("label"),
+			Amount:   r.FormValue("withdraw_amount"),
+			Currency: r.FormValue("currency"),
+			Profit:   r.FormValue("amount"),
+			PaidAt:   paidAt.UTC(),
+		}
+
+		a := strings.Join([]string{
+			r.FormValue("notification_type"),
+			r.FormValue("operation_id"),
+			payment.Amount,
+			payment.Currency,
+			r.FormValue("datetime"),
+			r.FormValue("sender"),
+			r.FormValue("codepro"),
+			r.FormValue("notification_secret"),
+			r.FormValue("label"),
+		}, "&")
+
+		hash := sha1.Sum([]byte(a))
+		if r.FormValue("sign") != hex.EncodeToString(hash[:]) {
+			log.Println("checkout/yoomoney: bad signature")
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		if err := callback(payment); err != nil {
+			log.Println("checkout/yoomoney:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
+}

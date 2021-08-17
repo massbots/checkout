@@ -24,17 +24,20 @@ type (
 
 	// Payment represents a universal payment object.
 	Payment struct {
-		ID        string
-		AccountID string
-		Amount    string
-		Currency  string
-		Comment   string
-		ReturnURL string
-		Metadata  Metadata
+		ID         string
+		AccountID  string
+		Amount     string
+		Currency   string
+		Comment    string
+		SuccessURL string
+		Metadata   Metadata
 
-		Status string    // for callback only
-		Profit string    // for callback only
-		PaidAt time.Time // for callback only
+		Type   string // yoomoney only (PC, AC, MC)
+		Target string // yoomoney only
+
+		Status string    // in callback only
+		Profit string    // in callback only
+		PaidAt time.Time // in callback only
 
 		// V is a special field set by a checkout implementation. It stores an
 		// original payment structure.

@@ -68,7 +68,7 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	params.Set("amount", payment.Amount)
 	params.Set("account", payment.AccountID)
 	params.Set("comment", payment.Comment)
-	params.Set("successUrl", payment.ReturnURL)
+	params.Set("successUrl", payment.SuccessURL)
 
 	for k, v := range payment.Metadata {
 		params.Set("customFields["+k+"]", fmt.Sprint(v))
