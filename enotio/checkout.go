@@ -17,9 +17,9 @@ const BaseURL = "https://enot.io/pay?"
 
 // Checkout implements checkout.Checkout.
 type Checkout struct {
-	MerchatID string
-	APIKey1   string
-	APIKey2   string
+	MerchantID string
+	APIKey1    string
+	APIKey2    string
 }
 
 func (c Checkout) encodeMetadata(md checkout.Metadata) string {
@@ -41,13 +41,13 @@ func (c Checkout) decodeMetadata(s string) checkout.Metadata {
 
 func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	params := url.Values{}
-	params.Set("m", c.MerchatID)
+	params.Set("m", c.MerchantID)
 	params.Set("o", payment.ID)
 	params.Set("oa", payment.Amount)
 	params.Set("cf", c.encodeMetadata(payment.Metadata))
 
 	a := strings.Join([]string{
-		c.MerchatID,
+		c.MerchantID,
 		payment.Amount,
 		c.APIKey1,
 		payment.ID,
@@ -67,7 +67,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		}
 
 		a := strings.Join([]string{
-			c.MerchatID,
+			c.MerchantID,
 			r.FormValue("amount"),
 			c.APIKey2,
 			r.FormValue("merchant_id"),
