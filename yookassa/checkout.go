@@ -30,6 +30,13 @@ type (
 		ReturnURL string `json:"return_url"`
 	}
 
+	Request struct {
+		Description  string       `json:"description"`
+		Amount       Amount       `json:"amount"`
+		Confirmation Confirmation `json:"confirmation"`
+		Capture      bool         `json:"capture"`
+	}
+
 	Payment struct {
 		ID          string            `json:"id"`
 		Status      string            `json:"status"`
@@ -51,13 +58,6 @@ type (
 		Confirmation struct {
 			URL string `json:"confirmation_url"`
 		} `json:"confirmation"`
-	}
-
-	Request struct {
-		Description  string       `json:"description"`
-		Amount       Amount       `json:"amount"`
-		Confirmation Confirmation `json:"confirmation"`
-		Capture      bool         `json:"capture"`
 	}
 
 	Event struct {
@@ -83,7 +83,7 @@ func idempotenceKey() (string, error) {
 
 func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	data, err := json.Marshal(Request{
-		Description:  payment.Description,
+		Description:  payment.Comment,
 		Amount:       Amount{Value: payment.Amount, Currency: payment.Currency},
 		Confirmation: Confirmation{Type: "redirect", ReturnURL: payment.ReturnURL},
 		Capture:      true,
@@ -97,13 +97,8 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 		return "", err
 	}
 
-	key, err := idempotenceKey()
-	if err != nil {
-		return "", err
-	}
-
 	req.SetBasicAuth(c.ShopID, c.APIKey)
-	req.Header.Set("Idempotence-Key", key)
+	req.Header.Set("Idempotence-Key", payment.ID)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -130,14 +125,14 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		}
 
 		payment := checkout.Payment{
-			ID:          event.Object.ID,
-			Amount:      event.Object.Amount.Value,
-			Currency:    event.Object.Amount.Currency,
-			Description: event.Object.Description,
-			Status:      event.Object.Status,
-			Profit:      event.Object.Income.Value,
-			PaidAt:      event.Object.Captured,
-			V:           event.Object,
+			ID:       event.Object.ID,
+			Amount:   event.Object.Amount.Value,
+			Currency: event.Object.Amount.Currency,
+			Comment:  event.Object.Description,
+			Status:   event.Object.Status,
+			Profit:   event.Object.Income.Value,
+			PaidAt:   event.Object.Captured,
+			V:        event.Object,
 		}
 
 		if err := callback(payment); err != nil {
