@@ -24,12 +24,13 @@ type (
 
 	// Payment represents a universal payment object.
 	Payment struct {
-		ID          string
-		Amount      string
-		Currency    string
-		Description string
-		ReturnURL   string
-		Metadata    Metadata
+		ID        string
+		AccountID string
+		Amount    string
+		Currency  string
+		Comment   string
+		ReturnURL string
+		Metadata  Metadata
 
 		Status string    // for callback only
 		Profit string    // for callback only
