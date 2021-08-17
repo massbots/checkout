@@ -33,7 +33,7 @@ func main() {
 
 	// Generate a link for the user
 	url, err := co.Request(checkout.Payment{
-		ID:       1,
+		ID:       "1",
 		Amount:   "100.00",
 		Currency: checkout.RUB,
 		Metadata: checkout.Metadata{...},
