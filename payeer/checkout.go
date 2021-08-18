@@ -32,8 +32,7 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	params.Set("m_orderid", payment.ID)
 	params.Set("m_amount", payment.Amount)
 	params.Set("m_curr", payment.Currency)
-	desc := base64.StdEncoding.EncodeToString(
-		[]byte(payment.Comment))
+	desc := base64.StdEncoding.EncodeToString([]byte(payment.Comment))
 	params.Set("m_desc", desc)
 
 	a := strings.Join([]string{
@@ -86,7 +85,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		a = append(a, c.APIKey)
 
 		hash := sha256.Sum256([]byte(strings.Join(a, ":")))
-		if r.FormValue("m_sign") != strings.ToUpper(hex.EncodeToString(hash[:])) || r.FormValue("m_status") != "success" {
+		if r.FormValue("m_sign") != strings.ToUpper(hex.EncodeToString(hash[:])) {
 			log.Println("checkout/payeer: bad request")
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -106,6 +105,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			Comment:  string(comment),
 			Status:   r.FormValue("m_status"),
 			Amount:   r.FormValue("m_amount"),
+			Profit:   r.FormValue("summa_out"),
 			PaidAt:   paidAt,
 		}
 
