@@ -10,6 +10,7 @@ Feel free to request a missing provider by creating an issue, or adding one you'
 - [Qiwi](https://p2p.qiwi.com)
 - [YooMoney](https://yoomoney.ru)
 - [YooKassa](https://yookassa.ru)
+- [Payeer](https://payeer.com/ru/solutions)
 - [Anypay](https://anypay.io)
 - [Enotio](https://enot.io)
 
