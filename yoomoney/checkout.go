@@ -106,7 +106,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		}, "&")
 
 		hash := sha1.Sum([]byte(a))
-		if r.FormValue("sign") != hex.EncodeToString(hash[:]) {
+		if r.FormValue("sha1_hash") != hex.EncodeToString(hash[:]) {
 			log.Println("checkout/yoomoney: bad signature")
 			w.WriteHeader(http.StatusForbidden)
 			return
