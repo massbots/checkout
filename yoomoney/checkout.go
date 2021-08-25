@@ -25,7 +25,8 @@ const (
 type (
 	// Checkout implements checkout.Checkout.
 	Checkout struct {
-		Receiver string
+		Receiver  string
+		SecretKey string
 	}
 )
 
@@ -101,7 +102,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			r.FormValue("datetime"),
 			r.FormValue("sender"),
 			r.FormValue("codepro"),
-			r.FormValue("notification_secret"),
+			c.SecretKey,
 			r.FormValue("label"),
 		}, "&")
 
