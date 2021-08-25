@@ -78,7 +78,7 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 }
 
 var (
-	timeLayout = "02.01.2006T15:04:05+07:00"
+	timeLayout = "2006-01-02T15:04:05Z"
 	timeLoc, _ = time.LoadLocation("Europe/Moscow")
 )
 
