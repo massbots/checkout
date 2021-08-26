@@ -47,11 +47,7 @@ func WithCommission(pt, amount string) string {
 	return amount
 }
 
-// Request implements Checkout.Request.
-//
-// Does not support Metadata and AccountID. You should associate
-// this information with the payment ID on your own.
-//
+// Request implements Checkout.Request. Does not support Metadata.
 func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	params := url.Values{}
 	params.Set("receiver", c.Receiver)

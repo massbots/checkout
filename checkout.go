@@ -25,7 +25,6 @@ type (
 	// Payment represents a universal payment object.
 	Payment struct {
 		ID         string
-		AccountID  string
 		Amount     string
 		Currency   string
 		Comment    string

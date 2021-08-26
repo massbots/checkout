@@ -66,7 +66,6 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	params.Set("publicKey", c.PublicKey)
 	params.Set("billId", payment.ID)
 	params.Set("amount", payment.Amount)
-	params.Set("account", payment.AccountID)
 	params.Set("comment", payment.Comment)
 	params.Set("successUrl", payment.SuccessURL)
 
