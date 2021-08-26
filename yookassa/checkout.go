@@ -125,6 +125,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		}
 
 		payment := checkout.Payment{
+			Checkout: "yookassa",
 			ID:       event.Object.ID,
 			Amount:   event.Object.Amount.Value,
 			Currency: event.Object.Amount.Currency,

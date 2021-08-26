@@ -101,6 +101,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		}
 
 		payment := checkout.Payment{
+			Checkout: "qiwi",
 			ID:       bill.Payment.BillID,
 			Currency: bill.Payment.Amount.Currency,
 			Comment:  bill.Payment.Comment,

@@ -66,6 +66,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		}
 
 		payment := checkout.Payment{
+			Checkout: "anypay",
 			ID:       r.FormValue("pay_id"),
 			Amount:   r.FormValue("amount"),
 			Currency: r.FormValue("currency"),

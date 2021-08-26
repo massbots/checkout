@@ -87,6 +87,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		}
 
 		payment := checkout.Payment{
+			Checkout: "yoomoney",
 			ID:       r.FormValue("label"),
 			Amount:   r.FormValue("withdraw_amount"),
 			Currency: r.FormValue("currency"),

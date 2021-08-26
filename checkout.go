@@ -35,9 +35,10 @@ type (
 		Type   string // yoomoney only (PC, AC, MC)
 		Target string // yoomoney only
 
-		Status string    // in callback only
-		Profit string    // in callback only
-		PaidAt time.Time // in callback only
+		Checkout string    // in callback only
+		Status   string    // in callback only
+		Profit   string    // in callback only
+		PaidAt   time.Time // in callback only
 
 		// V is a special field set by a checkout implementation. It stores an
 		// original payment structure.

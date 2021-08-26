@@ -84,6 +84,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		metadata := c.decodeMetadata(custom)
 
 		payment := checkout.Payment{
+			Checkout: "enotio",
 			ID:       r.FormValue("merchant_id"),
 			Currency: r.FormValue("currency"),
 			Amount:   r.FormValue("amount"),

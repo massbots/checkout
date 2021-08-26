@@ -99,7 +99,9 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		}
 
 		comment, _ := base64.StdEncoding.DecodeString(r.FormValue("m_desc"))
+
 		payment := checkout.Payment{
+			Checkout: "payeer",
 			ID:       r.FormValue("m_orderid"),
 			Currency: r.FormValue("m_curr"),
 			Comment:  string(comment),
