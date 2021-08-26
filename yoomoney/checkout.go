@@ -97,7 +97,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		a := strings.Join([]string{
 			r.FormValue("notification_type"),
 			r.FormValue("operation_id"),
-			payment.Amount,
+			payment.Profit,
 			payment.Currency,
 			r.FormValue("datetime"),
 			r.FormValue("sender"),
