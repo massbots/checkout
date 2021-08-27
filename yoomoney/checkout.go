@@ -87,6 +87,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			ID:       r.FormValue("label"),
 			Amount:   r.FormValue("withdraw_amount"),
 			Currency: r.FormValue("currency"),
+			Status:   checkout.StatusPaid,
 			Profit:   r.FormValue("amount"),
 			PaidAt:   paidAt.UTC(),
 		}

@@ -12,6 +12,14 @@ const (
 	USD = "USD"
 )
 
+// Statuses.
+const (
+	StatusPaid = 1 + iota
+	StatusWaiting
+	StatusExpired
+	StatusRejected
+)
+
 type (
 	// Checkout provides two primary operations from a chosen payment acquiring.
 	Checkout interface {
@@ -35,7 +43,7 @@ type (
 		Target string // yoomoney only
 
 		Checkout string    // in callback only
-		Status   string    // in callback only
+		Status   int       // in callback only
 		Profit   string    // in callback only
 		PaidAt   time.Time // in callback only
 

@@ -81,6 +81,13 @@ var (
 	timeLoc, _ = time.LoadLocation("Europe/Moscow")
 )
 
+var statuses = map[string]int{
+	"WAITING":  checkout.StatusWaiting,
+	"PAID":     checkout.StatusPaid,
+	"REJECTED": checkout.StatusRejected,
+	"EXPIRED":  checkout.StatusExpired,
+}
+
 func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var bill struct {
@@ -105,7 +112,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			Currency: bill.Payment.Amount.Currency,
 			Comment:  bill.Payment.Comment,
 			Metadata: bill.Payment.CustomFields,
-			Status:   bill.Payment.Status.Value,
+			Status:   statuses[bill.Payment.Status.Value],
 			Profit:   bill.Payment.Amount.Value,
 			PaidAt:   paidAt,
 			V:        bill.Payment,
@@ -116,7 +123,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			payment.Amount,
 			payment.ID,
 			bill.Payment.SiteID,
-			payment.Status,
+			bill.Payment.Status.Value,
 		}, "|")
 
 		hash := hmac.New(sha256.New, []byte(c.SecretKey))

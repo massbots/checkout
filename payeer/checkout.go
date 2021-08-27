@@ -50,6 +50,10 @@ var (
 	timeLoc, _ = time.LoadLocation("Europe/Moscow")
 )
 
+var statuses = map[string]int{
+	"success": checkout.StatusPaid,
+}
+
 // Webhook implements Checkout.Webhook.
 //
 // Does not support Profit. Amount will be equal to profit
@@ -101,7 +105,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			ID:       r.FormValue("m_orderid"),
 			Currency: r.FormValue("m_curr"),
 			Comment:  string(comment),
-			Status:   r.FormValue("m_status"),
+			Status:   statuses[r.FormValue("m_status")],
 			Amount:   r.FormValue("m_amount"),
 			Profit:   r.FormValue("summa_out"),
 			PaidAt:   paidAt,

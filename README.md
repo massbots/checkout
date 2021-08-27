@@ -59,7 +59,7 @@ func callback(p checkout.Payment) error {
 	pp := yookassa.From(p)
 
 	// Always check payment's status!
-	if p.Status != "succeeded" {
+	if p.Status != checkout.StatusPaid {
 		return ...
 	}
 }

@@ -115,6 +115,12 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	return result.Confirmation.URL, nil
 }
 
+var statuses = map[string]int{
+	"waiting_for_capture": checkout.StatusWaiting,
+	"succeeded":           checkout.StatusPaid,
+	"canceled":            checkout.StatusRejected,
+}
+
 func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var event Event
@@ -130,7 +136,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			Amount:   event.Object.Amount.Value,
 			Currency: event.Object.Amount.Currency,
 			Comment:  event.Object.Description,
-			Status:   event.Object.Status,
+			Status:   statuses[event.Object.Status],
 			Profit:   event.Object.Income.Value,
 			PaidAt:   event.Object.Captured,
 			V:        event.Object,
