@@ -7,10 +7,10 @@ The goal of `checkout` package is to unite popular acquiring providers for quick
 
 Feel free to request a missing provider by creating an issue, or adding one you'd like to integrate by making a pull request.
 
-- [Qiwi](https://p2p.qiwi.com)
-- [YooMoney](https://yoomoney.ru)
-- [YooKassa](https://yookassa.ru)
-- [Payeer](https://payeer.com/ru/solutions)
+- [Qiwi](https://developer.qiwi.com/ru/p2p-payments)
+- [YooMoney](https://yoomoney.ru/docs/payment-buttons/using-api/flow)
+- [YooKassa](https://yookassa.ru/developers/using-api/basics)
+- [Payeer](https://www.payeer.com/upload/pdf/PayeerMerchantru.pdf)
 - [Anypay](https://anypay.io)
 - [Enotio](https://enot.io)
 
@@ -49,8 +49,6 @@ func main() {
 }
 
 func callback(p checkout.Payment) error {
-	// Payment is successful!
-
 	// New fields to process:
 	// p.Status
 	// p.Profit
@@ -59,5 +57,10 @@ func callback(p checkout.Payment) error {
 
 	// In case you need original full structure
 	pp := yookassa.From(p)
+
+	// Always check payment's status!
+	if p.Status != "succeeded" {
+		return ...
+	}
 }
 ```
