@@ -76,10 +76,7 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	return c.BaseURL + params.Encode(), nil
 }
 
-var (
-	timeLayout = "2006-01-02T15:04:05Z"
-	timeLoc, _ = time.LoadLocation("Europe/Moscow")
-)
+var timeLayout = "2006-01-02T15:04:05-07"
 
 var statuses = map[string]int{
 	"WAITING":  checkout.StatusWaiting,
@@ -99,7 +96,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			return
 		}
 
-		paidAt, err := time.ParseInLocation(timeLayout, bill.Payment.CreationDateTime, timeLoc)
+		paidAt, err := time.Parse(timeLayout, bill.Payment.CreationDateTime)
 		if err != nil {
 			log.Println("checkout/qiwi:", err)
 			w.WriteHeader(http.StatusInternalServerError)
