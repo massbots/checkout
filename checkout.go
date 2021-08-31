@@ -55,7 +55,7 @@ type (
 		//			pp := yookassa.From(p) // yookassa.Payment
 		//		}
 		//
-		V interface{}
+		V interface{} `json:"-"`
 	}
 
 	// Metadata is a set of custom fields necessary to be passed to the payment request.
