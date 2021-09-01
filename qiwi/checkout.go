@@ -117,7 +117,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 
 		a := strings.Join([]string{
 			payment.Currency,
-			payment.Amount,
+			payment.Profit,
 			payment.ID,
 			bill.Payment.SiteID,
 			bill.Payment.Status.Value,
