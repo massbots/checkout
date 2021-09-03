@@ -38,10 +38,10 @@ func WithCommission(pt, amount string) string {
 	switch pt {
 	case PC:
 		const commission float64 = 0.005 / 1.005
-		return a.Sub(a.Mul(decimal.NewFromFloat(commission))).String()
+		return a.Add(a.Mul(decimal.NewFromFloat(commission))).StringFixed(2)
 	case AC:
 		const commission float64 = 1 - 0.02
-		return a.Mul(decimal.NewFromFloat(commission)).String()
+		return a.Div(decimal.NewFromFloat(commission)).StringFixed(2)
 	}
 
 	return amount
