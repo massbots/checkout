@@ -69,6 +69,9 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	params.Set("comment", payment.Comment)
 	params.Set("successUrl", payment.SuccessURL)
 
+	expDate := payment.ExpirationDate.Format("2006-01-02T15:04:05-07:00")
+	params.Set("expirationDateTime", expDate)
+
 	for k, v := range payment.Metadata {
 		params.Set("customFields["+k+"]", fmt.Sprint(v))
 	}

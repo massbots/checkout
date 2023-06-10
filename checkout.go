@@ -42,6 +42,8 @@ type (
 		Type   string // yoomoney only (PC, AC, MC)
 		Target string // yoomoney only
 
+		ExpirationDate time.Time // qiwi only
+
 		Checkout string    // in callback only
 		Status   int       // in callback only
 		Profit   string    // in callback only
