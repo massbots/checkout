@@ -42,6 +42,10 @@ type (
 		Type   string // yoomoney only (PC, AC, MC)
 		Target string // yoomoney only
 
+		MerchantID    string // paymaster only
+		CallbackURL   string // paymaster only
+		PaymentMethod string // paymaster only
+
 		ExpirationDate time.Time // qiwi only
 
 		Checkout string    // in callback only
