@@ -8,19 +8,14 @@ import (
 	"time"
 )
 
-type Client struct {
-	Email string `json:"email"`
-	Phone string `json:"phone"`
-	Name  string `json:"name"`
-	INN   string `json:"INN"`
-}
-
-type ReceiptRequest struct {
-	PaymentID string `json:"paymentId"`
-	Amount    Amount `json:"amount"`
-	Type      string `json:"type"`
-	Client    Client `json:"client"`
-	Items     struct {
+type (
+	Client struct {
+		Email string `json:"email"`
+		Phone string `json:"phone"`
+		Name  string `json:"name"`
+		INN   string `json:"INN"`
+	}
+	ReceiptItems struct {
 		Name string `json:"name"`
 
 		// decimals
@@ -33,6 +28,7 @@ type ReceiptRequest struct {
 			Country     string `json:"country"`
 			Declaration string `json:"declaration"`
 		} `json:"product"`
+
 		VatType        string `json:"vatType"`
 		PaymentSubject string `json:"paymentSubject"`
 		PaymentMethod  string `json:"paymentMethod"`
@@ -49,9 +45,16 @@ type ReceiptRequest struct {
 			INN   string `json:"INN"`
 			Phone string `json:"phone"`
 		}
-	} `json:"items"`
-}
+	}
 
+	ReceiptRequest struct {
+		PaymentID string `json:"paymentId"`
+		Amount    Amount `json:"amount"`
+		Type      string `json:"type"`
+		Client    Client `json:"client"`
+		Items     `json:"items"`
+	}
+)
 type Receipt struct {
 	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created"`

@@ -51,6 +51,16 @@ type (
 			ReturnURL   string `json:"returnUrl"`
 			CallbackURL string `json:"callbackUrl"`
 		}
+		Customer struct {
+			Email   string `json:"email"`
+			Phone   string `json:"phone"`
+			IP      string `json:"ip"`
+			Account string `json:"account"`
+		} `json:"customer"`
+		Receipt struct {
+			Client Client       `json:"client"`
+			Items  ReceiptItems `json:"items"`
+		} `json:"receipt"`
 	}
 
 	Payment struct {
@@ -79,11 +89,6 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	data, err := json.Marshal(Request{
 		MerchantID: payment.MerchantID,
 		TestMode:   false,
-		Tokenization: struct {
-			Type        string `json:"type"`
-			Purpose     string `json:"purpose"`
-			CallbackURL string `json:"callbackUrl"`
-		}{},
 		Invoice: Invoice{
 			Description: payment.Comment,
 		},
