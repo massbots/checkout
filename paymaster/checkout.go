@@ -3,10 +3,11 @@ package paymaster
 import (
 	"bytes"
 	"encoding/json"
-	"go.massbots.xyz/checkout"
 	"log"
 	"net/http"
 	"time"
+
+	"go.massbots.xyz/checkout"
 )
 
 var BaseURL = "https://paymaster.ru/api/v2"
@@ -20,13 +21,18 @@ var statuses = map[string]int{
 // Checkout implements checkout.Checkout.
 type (
 	Checkout struct {
-		BaseURL             string
-		AuthorizationBearer string
+		BaseURL   string
+		AuthToken string
 	}
 
 	Amount struct {
 		Value    string `json:"value"`
 		Currency string `json:"currency"`
+	}
+
+	Protocol struct {
+		ReturnURL   string `json:"returnUrl"`
+		CallbackURL string `json:"callbackUrl"`
 	}
 
 	Invoice struct {
@@ -37,26 +43,26 @@ type (
 	}
 
 	Request struct {
-		MerchantID   string `json:"merchantId"`
-		TestMode     bool   `json:"testMode"`
+		MerchantID    string   `json:"merchantId"`
+		TestMode      bool     `json:"testMode"`
+		Invoice       Invoice  `json:"invoice"`
+		Amount        Amount   `json:"amount"`
+		Protocol      Protocol `json:"protocol"`
+		PaymentMethod string   `json:"paymentMethod"`
+
 		Tokenization struct {
 			Type        string `json:"type"`
 			Purpose     string `json:"purpose"`
 			CallbackURL string `json:"callbackUrl"`
 		} `json:"tokenization"`
-		Invoice       Invoice `json:"invoice"`
-		Amount        Amount  `json:"amount"`
-		PaymentMethod string  `json:"paymentMethod"`
-		Protocol      struct {
-			ReturnURL   string `json:"returnUrl"`
-			CallbackURL string `json:"callbackUrl"`
-		}
+
 		Customer struct {
 			Email   string `json:"email"`
 			Phone   string `json:"phone"`
 			IP      string `json:"ip"`
 			Account string `json:"account"`
 		} `json:"customer"`
+
 		Receipt struct {
 			Client Client       `json:"client"`
 			Items  ReceiptItems `json:"items"`
@@ -71,8 +77,7 @@ type (
 		MerchantID    string    `json:"merchantId"`
 		Invoice       Invoice   `json:"invoice"`
 		PaymentMethod string    `json:"paymentMethod"`
-
-		Amount Amount `json:"amount"`
+		Amount        Amount    `json:"amount"`
 
 		PaymentData struct {
 			PaymentMethod         string `json:"paymentMethod"`
@@ -87,31 +92,18 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	}
 
 	data, err := json.Marshal(Request{
-		MerchantID: payment.MerchantID,
-		TestMode:   false,
-		Invoice: Invoice{
-			Description: payment.Comment,
-		},
-		Amount: Amount{
-			Value: payment.Amount, Currency: payment.Currency,
-		},
+		MerchantID:    payment.MerchantID,
 		PaymentMethod: payment.PaymentMethod,
-		Protocol: struct {
-			ReturnURL   string `json:"returnUrl"`
-			CallbackURL string `json:"callbackUrl"`
-		}{
-			ReturnURL:   payment.SuccessURL,
-			CallbackURL: payment.CallbackURL,
-		},
+		Invoice:       Invoice{Description: payment.Comment},
+		Amount:        Amount{Value: payment.Amount, Currency: payment.Currency},
+		Protocol:      Protocol{ReturnURL: payment.SuccessURL, CallbackURL: payment.CallbackURL},
 	})
-
 	if err != nil {
 		return "", err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, BaseURL+"/invoices", bytes.NewReader(data))
-
-	req.Header.Set("Authorization", c.AuthorizationBearer)
+	req.Header.Set("Authorization", c.AuthToken)
 	req.Header.Set("Idempotency-Key", payment.ID)
 	req.Header.Set("Content-Type", "application/json")
 
@@ -119,6 +111,8 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	dec := json.NewDecoder(resp.Body)
 	defer resp.Body.Close()
 
 	var result struct {
@@ -126,16 +120,13 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 		URL string `json:"url"`
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
-	}
-	return result.URL, nil
+	return result.URL, dec.Decode(&result)
 }
 
 func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var localPayment Payment
-		if err := json.NewDecoder(r.Body).Decode(&localPayment); err != nil {
+		var p Payment
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
 			log.Println("checkout/paymaster:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -143,14 +134,14 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 
 		payment := checkout.Payment{
 			Checkout: "paymaster",
-			ID:       localPayment.ID,
-			Amount:   localPayment.Amount.Value,
-			Currency: localPayment.Amount.Currency,
-			Comment:  localPayment.Invoice.Description,
-			Status:   statuses[localPayment.Status],
-			Profit:   localPayment.Amount.Value,
-			PaidAt:   localPayment.CreatedAt,
-			V:        localPayment,
+			ID:       p.ID,
+			Amount:   p.Amount.Value,
+			Currency: p.Amount.Currency,
+			Comment:  p.Invoice.Description,
+			Status:   statuses[p.Status],
+			Profit:   p.Amount.Value,
+			PaidAt:   p.CreatedAt,
+			V:        p,
 		}
 
 		if err := callback(payment); err != nil {

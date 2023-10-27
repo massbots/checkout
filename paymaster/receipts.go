@@ -15,31 +15,32 @@ type (
 		Name  string `json:"name"`
 		INN   string `json:"INN"`
 	}
+
 	ReceiptItems struct {
-		Name string `json:"name"`
+		Name           string `json:"name"`
+		Quantity       string `json:"quantity"` // decimal
+		Price          string `json:"price"`    // decimal
+		Excise         string `json:"excise"`   // decimal
+		Measure        string `json:"measure"`
+		VatType        string `json:"vatType"`
+		PaymentSubject string `json:"paymentSubject"`
+		PaymentMethod  string `json:"paymentMethod"`
 
-		// decimals
-		Quantity string `json:"quantity"`
-		Price    string `json:"price"`
-		Excise   string `json:"excise"`
-
-		Measure string `json:"measure"`
 		Product struct {
 			Country     string `json:"country"`
 			Declaration string `json:"declaration"`
 		} `json:"product"`
 
-		VatType        string `json:"vatType"`
-		PaymentSubject string `json:"paymentSubject"`
-		PaymentMethod  string `json:"paymentMethod"`
-		Marking        struct {
-			Code     string `json:"code"`
+		Marking struct {
+			Code      string `json:"code"`
+			AgentType string `json:"agentType"`
+
 			Quantity struct {
 				Numerator   int `json:"numerator"`
 				Denominator int `json:"denominator"`
 			}
-			AgentType string `json:"agentType"`
 		}
+
 		Supplier struct {
 			Name  string `json:"name"`
 			INN   string `json:"INN"`
@@ -48,11 +49,11 @@ type (
 	}
 
 	ReceiptRequest struct {
-		PaymentID string `json:"paymentId"`
-		Amount    Amount `json:"amount"`
-		Type      string `json:"type"`
-		Client    Client `json:"client"`
-		Items     `json:"items"`
+		PaymentID string       `json:"paymentId"`
+		Amount    Amount       `json:"amount"`
+		Type      string       `json:"type"`
+		Client    Client       `json:"client"`
+		Items     ReceiptItems `json:"items"`
 	}
 )
 type Receipt struct {
@@ -64,71 +65,63 @@ type Receipt struct {
 	Status    string    `json:"status"`
 }
 
-func (c Checkout) CreateReceipt(receipt ReceiptRequest) (r *Receipt, err error) {
-	endpoint := c.BaseURL + "/receipts"
-
+func (c Checkout) CreateReceipt(receipt ReceiptRequest) (r *Receipt, _ error) {
 	data, err := json.Marshal(receipt)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewReader(data))
+	req, err := http.NewRequest(http.MethodPost, c.BaseURL+"/receipts", bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.AuthorizationBearer)
+	req.Header.Set("Authorization", c.AuthToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
-	err = json.NewDecoder(resp.Body).Decode(r)
-	return
+	defer resp.Body.Close()
+	return r, json.NewDecoder(resp.Body).Decode(r)
 }
 
 func (c Checkout) ReceiptByID(id string) (r *Receipt, err error) {
-	endpoint := c.BaseURL + "/receipts/" + id
-
-	req, err := http.NewRequest(http.MethodPost, endpoint, nil)
+	req, err := http.NewRequest(http.MethodPost, c.BaseURL+"/receipts/"+id, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.AuthorizationBearer)
+	req.Header.Set("Authorization", c.AuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
-	err = json.NewDecoder(resp.Body).Decode(r)
-	return
+	defer resp.Body.Close()
+	return r, json.NewDecoder(resp.Body).Decode(r)
 }
 
 func (c Checkout) ReceiptList(paymentID string) (r []Receipt, err error) {
-	endpoint := c.BaseURL + "/receipts"
-
 	params := url.Values{}
 	params.Set("paymentId", paymentID)
+	url := c.BaseURL + "/receipts" + params.Encode()
 
-	req, err := http.NewRequest(http.MethodPost, endpoint+params.Encode(), nil)
+	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.AuthorizationBearer)
+	req.Header.Set("Authorization", c.AuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
-	err = json.NewDecoder(resp.Body).Decode(&r)
-	return
+	defer resp.Body.Close()
+	return r, json.NewDecoder(resp.Body).Decode(&r)
 }
