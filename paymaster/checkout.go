@@ -118,7 +118,7 @@ func (c Checkout) CustomRequest(id string, r Request) (string, error) {
 		return "", err
 	}
 	if result.Code != "" {
-		return "", fmt.Errorf("checkout/paymaster: %s (%s)", result.Message, result.Code)
+		return "", fmt.Errorf("checkout/paymaster: %s (%s)", result.Code, result.Message)
 	}
 	return result.URL, nil
 }
