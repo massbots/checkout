@@ -10,53 +10,53 @@ import (
 
 type (
 	Receipt struct {
-		ID        string    `json:"id"`
-		CreatedAt time.Time `json:"created"`
-		PaymentID string    `json:"paymentId"`
-		Amount    Amount    `json:"amount"`
-		Type      string    `json:"type"`
-		Status    string    `json:"status"`
+		ID        string    `json:"id,omitempty"`
+		CreatedAt time.Time `json:"created,omitempty"`
+		PaymentID string    `json:"paymentId,omitempty"`
+		Amount    Amount    `json:"amount,omitempty"`
+		Type      string    `json:"type,omitempty"`
+		Status    string    `json:"status,omitempty"`
 
-		Client ReceiptClient `json:"client"` // request
-		Items  ReceiptItems  `json:"items"`  // request
+		Client ReceiptClient `json:"client,omitempty"` // request
+		Items  ReceiptItems  `json:"items,omitempty"`  // request
 	}
 
 	ReceiptClient struct {
-		Email string `json:"email"`
-		Phone string `json:"phone"`
-		Name  string `json:"name"`
-		INN   string `json:"INN"`
+		Email string `json:"email,omitempty"`
+		Phone string `json:"phone,omitempty"`
+		Name  string `json:"name,omitempty"`
+		INN   string `json:"INN,omitempty"`
 	}
 
 	ReceiptItems struct {
-		Name           string `json:"name"`
-		Quantity       string `json:"quantity"` // decimal
-		Price          string `json:"price"`    // decimal
-		Excise         string `json:"excise"`   // decimal
-		Measure        string `json:"measure"`
-		VatType        string `json:"vatType"`
-		PaymentSubject string `json:"paymentSubject"`
-		PaymentMethod  string `json:"paymentMethod"`
+		Name           string `json:"name,omitempty"`
+		Quantity       string `json:"quantity,omitempty"` // decimal
+		Price          string `json:"price,omitempty"`    // decimal
+		Excise         string `json:"excise,omitempty"`   // decimal
+		Measure        string `json:"measure,omitempty"`
+		VatType        string `json:"vatType,omitempty"`
+		PaymentSubject string `json:"paymentSubject,omitempty"`
+		PaymentMethod  string `json:"paymentMethod,omitempty"`
 
 		Product struct {
-			Country     string `json:"country"`
-			Declaration string `json:"declaration"`
-		} `json:"product"`
+			Country     string `json:"country,omitempty"`
+			Declaration string `json:"declaration,omitempty"`
+		} `json:"product,omitempty"`
 
 		Marking struct {
-			Code      string `json:"code"`
-			AgentType string `json:"agentType"`
+			Code      string `json:"code,omitempty"`
+			AgentType string `json:"agentType,omitempty"`
 
 			Quantity struct {
-				Numerator   int `json:"numerator"`
-				Denominator int `json:"denominator"`
+				Numerator   int `json:"numerator,omitempty"`
+				Denominator int `json:"denominator,omitempty"`
 			}
 		}
 
 		Supplier struct {
-			Name  string `json:"name"`
-			INN   string `json:"INN"`
-			Phone string `json:"phone"`
+			Name  string `json:"name,omitempty"`
+			INN   string `json:"INN,omitempty"`
+			Phone string `json:"phone,omitempty"`
 		}
 	}
 )

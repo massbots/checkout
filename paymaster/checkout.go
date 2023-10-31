@@ -28,43 +28,43 @@ type Checkout struct {
 type (
 	Request struct {
 		MerchantID    string       `json:"merchantId"`
-		TestMode      bool         `json:"testMode"`
-		PaymentMethod string       `json:"paymentMethod"`
-		Invoice       Invoice      `json:"invoice"`
-		Amount        Amount       `json:"amount"`
-		Protocol      Protocol     `json:"protocol"`
-		Tokenization  Tokenization `json:"tokenization"`
-		Receipt       Receipt      `json:"receipt"`
+		TestMode      bool         `json:"testMode,omitempty"`
+		PaymentMethod string       `json:"paymentMethod,omitempty"`
+		Invoice       Invoice      `json:"invoice,omitempty"`
+		Amount        Amount       `json:"amount,omitempty"`
+		Protocol      Protocol     `json:"protocol,omitempty"`
+		Tokenization  Tokenization `json:"tokenization,omitempty"`
+		Receipt       Receipt      `json:"receipt,omitempty"`
 
 		Customer struct {
-			Email   string `json:"email"`
-			Phone   string `json:"phone"`
-			IP      string `json:"ip"`
-			Account string `json:"account"`
-		} `json:"customer"`
+			Email   string `json:"email,omitempty"`
+			Phone   string `json:"phone,omitempty"`
+			IP      string `json:"ip,omitempty"`
+			Account string `json:"account,omitempty"`
+		} `json:"customer,omitempty"`
 	}
 
 	Amount struct {
-		Value    string `json:"value"`
-		Currency string `json:"currency"`
+		Value    string `json:"value,omitempty"`
+		Currency string `json:"currency,omitempty"`
 	}
 
 	Protocol struct {
-		ReturnURL   string `json:"returnUrl"`
-		CallbackURL string `json:"callbackUrl"`
+		ReturnURL   string `json:"returnUrl,omitempty"`
+		CallbackURL string `json:"callbackUrl,omitempty"`
 	}
 
 	Invoice struct {
-		Description string            `json:"description"`
-		OrderNumber string            `json:"orderNo"`
-		Expires     time.Time         `json:"expires"`
-		Params      checkout.Metadata `json:"params"`
+		Description string            `json:"description,omitempty"`
+		OrderNumber string            `json:"orderNo,omitempty"`
+		Expires     time.Time         `json:"expires,omitempty"`
+		Params      checkout.Metadata `json:"params,omitempty"`
 	}
 
 	Tokenization struct {
-		Type        string `json:"type"`
-		Purpose     string `json:"purpose"`
-		CallbackURL string `json:"callbackUrl"`
+		Type        string `json:"type,omitempty"`
+		Purpose     string `json:"purpose,omitempty"`
+		CallbackURL string `json:"callbackUrl,omitempty"`
 	}
 
 	Payment struct {
