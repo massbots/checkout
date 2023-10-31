@@ -39,10 +39,8 @@ type (
 		SuccessURL string
 		Metadata   Metadata
 
-		Type   string // yoomoney only (PC, AC, MC)
-		Target string // yoomoney only
-
-		MerchantID    string // paymaster only
+		Target        string // yoomoney only
+		Type          string // yoomoney, paymaster only
 		CallbackURL   string // paymaster only
 		PaymentMethod string // paymaster only
 
