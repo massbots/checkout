@@ -109,7 +109,7 @@ func (c Checkout) ReceiptByID(id string) (r *Receipt, err error) {
 	return r, json.NewDecoder(resp.Body).Decode(r)
 }
 
-func (c Checkout) ReceiptList(paymentID string) (r []Receipt, err error) {
+func (c Checkout) Receipts(paymentID string) (r []Receipt, err error) {
 	params := url.Values{}
 	params.Set("paymentId", paymentID)
 

@@ -39,12 +39,12 @@ type (
 		SuccessURL string
 		Metadata   Metadata
 
-		Target        string // yoomoney only
-		Type          string // yoomoney, paymaster only
-		CallbackURL   string // paymaster only
-		PaymentMethod string // paymaster only
-
-		ExpirationDate time.Time // qiwi only
+		Target         string    // yoomoney only
+		Type           string    // yoomoney, paymaster only
+		ExpirationDate time.Time // qiwi,paymaster only
+		CallbackURL    string    // paymaster only
+		PaymentMethod  string    // paymaster only
+		Customer       string    // paymaster only
 
 		Checkout string    // in callback only
 		Status   int       // in callback only

@@ -3,6 +3,7 @@ package paymaster
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -108,11 +109,18 @@ func (c Checkout) CustomRequest(id string, r Request) (string, error) {
 	defer resp.Body.Close()
 
 	var result struct {
-		ID  string `json:"paymentId"`
-		URL string `json:"url"`
+		Code    string `json:"code"`
+		Message string `json:"message"`
+		ID      string `json:"paymentId"`
+		URL     string `json:"url"`
 	}
-
-	return result.URL, dec.Decode(&result)
+	if err := dec.Decode(&result); err != nil {
+		return "", err
+	}
+	if result.Code != "" {
+		return "", fmt.Errorf("checkout/paymaster: %s (%s)", result.Message, result.Code)
+	}
+	return result.URL, nil
 }
 
 func (c Checkout) Request(p checkout.Payment) (string, error) {
@@ -124,6 +132,7 @@ func (c Checkout) Request(p checkout.Payment) (string, error) {
 		Invoice: &Invoice{
 			Description: p.Comment,
 			Params:      p.Metadata,
+			Expires:     p.ExpirationDate, // a must
 		},
 		Amount: &Amount{
 			Value:    p.Amount,
@@ -133,6 +142,9 @@ func (c Checkout) Request(p checkout.Payment) (string, error) {
 			Type:        p.Type,
 			Purpose:     p.Comment,
 			CallbackURL: p.CallbackURL,
+		},
+		Customer: &Customer{
+			Account: p.Customer,
 		},
 	})
 }
