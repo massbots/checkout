@@ -27,15 +27,15 @@ type Checkout struct {
 
 type (
 	Request struct {
-		MerchantID    string       `json:"merchantId"`
-		TestMode      bool         `json:"testMode,omitempty"`
-		PaymentMethod string       `json:"paymentMethod,omitempty"`
-		Invoice       Invoice      `json:"invoice,omitempty"`
-		Amount        Amount       `json:"amount,omitempty"`
-		Protocol      Protocol     `json:"protocol,omitempty"`
-		Tokenization  Tokenization `json:"tokenization,omitempty"`
-		Receipt       Receipt      `json:"receipt,omitempty"`
-		Customer      Customer     `json:"customer,omitempty"`
+		MerchantID    string        `json:"merchantId"`
+		TestMode      bool          `json:"testMode,omitempty"`
+		PaymentMethod string        `json:"paymentMethod,omitempty"`
+		Invoice       *Invoice      `json:"invoice,omitempty"`
+		Amount        *Amount       `json:"amount,omitempty"`
+		Protocol      *Protocol     `json:"protocol,omitempty"`
+		Tokenization  *Tokenization `json:"tokenization,omitempty"`
+		Receipt       *Receipt      `json:"receipt,omitempty"`
+		Customer      *Customer     `json:"customer,omitempty"`
 	}
 
 	Amount struct {
@@ -119,17 +119,17 @@ func (c Checkout) Request(p checkout.Payment) (string, error) {
 	return c.CustomRequest(p.ID, Request{
 		MerchantID:    c.MerchantID,
 		PaymentMethod: p.PaymentMethod,
-		Protocol:      Protocol{ReturnURL: p.SuccessURL},
+		Protocol:      &Protocol{ReturnURL: p.SuccessURL},
 
-		Invoice: Invoice{
+		Invoice: &Invoice{
 			Description: p.Comment,
 			Params:      p.Metadata,
 		},
-		Amount: Amount{
+		Amount: &Amount{
 			Value:    p.Amount,
 			Currency: p.Currency,
 		},
-		Tokenization: Tokenization{
+		Tokenization: &Tokenization{
 			Type:        p.Type,
 			Purpose:     p.Comment,
 			CallbackURL: p.CallbackURL,

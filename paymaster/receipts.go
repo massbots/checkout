@@ -17,8 +17,8 @@ type (
 		Type      string    `json:"type,omitempty"`
 		Status    string    `json:"status,omitempty"`
 
-		Client ReceiptClient `json:"client,omitempty"` // request
-		Items  ReceiptItems  `json:"items,omitempty"`  // request
+		Client *ReceiptClient `json:"client,omitempty"` // request
+		Items  *ReceiptItems  `json:"items,omitempty"`  // request
 	}
 
 	ReceiptClient struct {
@@ -29,17 +29,17 @@ type (
 	}
 
 	ReceiptItems struct {
-		Name           string          `json:"name,omitempty"`
-		Quantity       string          `json:"quantity,omitempty"` // decimal
-		Price          string          `json:"price,omitempty"`    // decimal
-		Excise         string          `json:"excise,omitempty"`   // decimal
-		Measure        string          `json:"measure,omitempty"`
-		VatType        string          `json:"vatType,omitempty"`
-		PaymentSubject string          `json:"paymentSubject,omitempty"`
-		PaymentMethod  string          `json:"paymentMethod,omitempty"`
-		Product        ReceiptProduct  `json:"product,omitempty"`
-		Marking        ReceiptMarking  `json:"marking,omitempty"`
-		Supplier       ReceiptSupplier `json:"supplier,omitempty"`
+		Name           string           `json:"name,omitempty"`
+		Quantity       string           `json:"quantity,omitempty"` // decimal
+		Price          string           `json:"price,omitempty"`    // decimal
+		Excise         string           `json:"excise,omitempty"`   // decimal
+		Measure        string           `json:"measure,omitempty"`
+		VatType        string           `json:"vatType,omitempty"`
+		PaymentSubject string           `json:"paymentSubject,omitempty"`
+		PaymentMethod  string           `json:"paymentMethod,omitempty"`
+		Product        *ReceiptProduct  `json:"product,omitempty"`
+		Marking        *ReceiptMarking  `json:"marking,omitempty"`
+		Supplier       *ReceiptSupplier `json:"supplier,omitempty"`
 	}
 
 	ReceiptProduct struct {
@@ -48,9 +48,9 @@ type (
 	}
 
 	ReceiptMarking struct {
-		Code      string          `json:"code,omitempty"`
-		AgentType string          `json:"agentType,omitempty"`
-		Quantity  ReceiptQuantity `json:"quantity,omitempty"`
+		Code      string           `json:"code,omitempty"`
+		AgentType string           `json:"agentType,omitempty"`
+		Quantity  *ReceiptQuantity `json:"quantity,omitempty"`
 	}
 
 	ReceiptQuantity struct {
