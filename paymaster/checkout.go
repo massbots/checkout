@@ -35,13 +35,7 @@ type (
 		Protocol      Protocol     `json:"protocol,omitempty"`
 		Tokenization  Tokenization `json:"tokenization,omitempty"`
 		Receipt       Receipt      `json:"receipt,omitempty"`
-
-		Customer struct {
-			Email   string `json:"email,omitempty"`
-			Phone   string `json:"phone,omitempty"`
-			IP      string `json:"ip,omitempty"`
-			Account string `json:"account,omitempty"`
-		} `json:"customer,omitempty"`
+		Customer      Customer     `json:"customer,omitempty"`
 	}
 
 	Amount struct {
@@ -67,20 +61,28 @@ type (
 		CallbackURL string `json:"callbackUrl,omitempty"`
 	}
 
-	Payment struct {
-		ID            string    `json:"id"`
-		CreatedAt     time.Time `json:"created"`
-		TestMode      bool      `json:"testMode"`
-		Status        string    `json:"status"`
-		MerchantID    string    `json:"merchantId"`
-		Invoice       Invoice   `json:"invoice"`
-		PaymentMethod string    `json:"paymentMethod"`
-		Amount        Amount    `json:"amount"`
+	Customer struct {
+		Email   string `json:"email,omitempty"`
+		Phone   string `json:"phone,omitempty"`
+		IP      string `json:"ip,omitempty"`
+		Account string `json:"account,omitempty"`
+	}
 
-		PaymentData struct {
-			PaymentMethod         string `json:"paymentMethod"`
-			PaymentInstrumentTile string `json:"paymentInstrumentTile"`
-		} `json:"paymentData"`
+	Payment struct {
+		ID            string      `json:"id"`
+		CreatedAt     time.Time   `json:"created"`
+		TestMode      bool        `json:"testMode"`
+		Status        string      `json:"status"`
+		MerchantID    string      `json:"merchantId"`
+		Invoice       Invoice     `json:"invoice"`
+		PaymentMethod string      `json:"paymentMethod"`
+		Amount        Amount      `json:"amount"`
+		PaymentData   PaymentData `json:"paymentData"`
+	}
+
+	PaymentData struct {
+		PaymentMethod         string `json:"paymentMethod"`
+		PaymentInstrumentTile string `json:"paymentInstrumentTile"`
 	}
 )
 

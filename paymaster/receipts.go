@@ -29,35 +29,39 @@ type (
 	}
 
 	ReceiptItems struct {
-		Name           string `json:"name,omitempty"`
-		Quantity       string `json:"quantity,omitempty"` // decimal
-		Price          string `json:"price,omitempty"`    // decimal
-		Excise         string `json:"excise,omitempty"`   // decimal
-		Measure        string `json:"measure,omitempty"`
-		VatType        string `json:"vatType,omitempty"`
-		PaymentSubject string `json:"paymentSubject,omitempty"`
-		PaymentMethod  string `json:"paymentMethod,omitempty"`
+		Name           string          `json:"name,omitempty"`
+		Quantity       string          `json:"quantity,omitempty"` // decimal
+		Price          string          `json:"price,omitempty"`    // decimal
+		Excise         string          `json:"excise,omitempty"`   // decimal
+		Measure        string          `json:"measure,omitempty"`
+		VatType        string          `json:"vatType,omitempty"`
+		PaymentSubject string          `json:"paymentSubject,omitempty"`
+		PaymentMethod  string          `json:"paymentMethod,omitempty"`
+		Product        ReceiptProduct  `json:"product,omitempty"`
+		Marking        ReceiptMarking  `json:"marking,omitempty"`
+		Supplier       ReceiptSupplier `json:"supplier,omitempty"`
+	}
 
-		Product struct {
-			Country     string `json:"country,omitempty"`
-			Declaration string `json:"declaration,omitempty"`
-		} `json:"product,omitempty"`
+	ReceiptProduct struct {
+		Country     string `json:"country,omitempty"`
+		Declaration string `json:"declaration,omitempty"`
+	}
 
-		Marking struct {
-			Code      string `json:"code,omitempty"`
-			AgentType string `json:"agentType,omitempty"`
+	ReceiptMarking struct {
+		Code      string          `json:"code,omitempty"`
+		AgentType string          `json:"agentType,omitempty"`
+		Quantity  ReceiptQuantity `json:"quantity,omitempty"`
+	}
 
-			Quantity struct {
-				Numerator   int `json:"numerator,omitempty"`
-				Denominator int `json:"denominator,omitempty"`
-			}
-		}
+	ReceiptQuantity struct {
+		Numerator   int `json:"numerator,omitempty"`
+		Denominator int `json:"denominator,omitempty"`
+	}
 
-		Supplier struct {
-			Name  string `json:"name,omitempty"`
-			INN   string `json:"INN,omitempty"`
-			Phone string `json:"phone,omitempty"`
-		}
+	ReceiptSupplier struct {
+		Name  string `json:"name,omitempty"`
+		INN   string `json:"INN,omitempty"`
+		Phone string `json:"phone,omitempty"`
 	}
 )
 
