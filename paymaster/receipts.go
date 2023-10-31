@@ -9,7 +9,19 @@ import (
 )
 
 type (
-	Client struct {
+	Receipt struct {
+		ID        string    `json:"id"`
+		CreatedAt time.Time `json:"created"`
+		PaymentID string    `json:"paymentId"`
+		Amount    Amount    `json:"amount"`
+		Type      string    `json:"type"`
+		Status    string    `json:"status"`
+
+		Client ReceiptClient `json:"client"` // request
+		Items  ReceiptItems  `json:"items"`  // request
+	}
+
+	ReceiptClient struct {
 		Email string `json:"email"`
 		Phone string `json:"phone"`
 		Name  string `json:"name"`
@@ -47,36 +59,22 @@ type (
 			Phone string `json:"phone"`
 		}
 	}
-
-	ReceiptRequest struct {
-		PaymentID string       `json:"paymentId"`
-		Amount    Amount       `json:"amount"`
-		Type      string       `json:"type"`
-		Client    Client       `json:"client"`
-		Items     ReceiptItems `json:"items"`
-	}
 )
-type Receipt struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"created"`
-	PaymentID string    `json:"paymentId"`
-	Amount    Amount    `json:"amount"`
-	Type      string    `json:"type"`
-	Status    string    `json:"status"`
-}
 
-func (c Checkout) CreateReceipt(receipt ReceiptRequest) (r *Receipt, _ error) {
-	data, err := json.Marshal(receipt)
+func (c Checkout) CreateReceipt(r Receipt) (*Receipt, error) {
+	end := c.BaseURL + "/receipts"
+
+	data, err := json.Marshal(r)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.BaseURL+"/receipts", bytes.NewReader(data))
+	req, err := http.NewRequest(http.MethodPost, end, bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.AuthToken)
+	req.Header.Set("Authorization", c.Token)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -85,16 +83,18 @@ func (c Checkout) CreateReceipt(receipt ReceiptRequest) (r *Receipt, _ error) {
 	}
 
 	defer resp.Body.Close()
-	return r, json.NewDecoder(resp.Body).Decode(r)
+	return &r, json.NewDecoder(resp.Body).Decode(&r)
 }
 
 func (c Checkout) ReceiptByID(id string) (r *Receipt, err error) {
-	req, err := http.NewRequest(http.MethodPost, c.BaseURL+"/receipts/"+id, nil)
+	end := c.BaseURL + "/receipts/" + id
+
+	req, err := http.NewRequest(http.MethodPost, end, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.AuthToken)
+	req.Header.Set("Authorization", c.Token)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -108,14 +108,15 @@ func (c Checkout) ReceiptByID(id string) (r *Receipt, err error) {
 func (c Checkout) ReceiptList(paymentID string) (r []Receipt, err error) {
 	params := url.Values{}
 	params.Set("paymentId", paymentID)
-	url := c.BaseURL + "/receipts" + params.Encode()
 
-	req, err := http.NewRequest(http.MethodPost, url, nil)
+	end := c.BaseURL + "/receipts" + params.Encode()
+
+	req, err := http.NewRequest(http.MethodPost, end, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", c.AuthToken)
+	req.Header.Set("Authorization", c.Token)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

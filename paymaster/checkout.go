@@ -10,7 +10,7 @@ import (
 	"go.massbots.xyz/checkout"
 )
 
-var BaseURL = "https://paymaster.ru/api/v2"
+const BaseURL = "https://paymaster.ru/api/v2"
 
 var statuses = map[string]int{
 	"Pending":   checkout.StatusWaiting,
@@ -19,10 +19,29 @@ var statuses = map[string]int{
 }
 
 // Checkout implements checkout.Checkout.
+type Checkout struct {
+	BaseURL    string
+	Token      string
+	MerchantID string
+}
+
 type (
-	Checkout struct {
-		BaseURL   string
-		AuthToken string
+	Request struct {
+		MerchantID    string       `json:"merchantId"`
+		TestMode      bool         `json:"testMode"`
+		PaymentMethod string       `json:"paymentMethod"`
+		Invoice       Invoice      `json:"invoice"`
+		Amount        Amount       `json:"amount"`
+		Protocol      Protocol     `json:"protocol"`
+		Tokenization  Tokenization `json:"tokenization"`
+		Receipt       Receipt      `json:"receipt"`
+
+		Customer struct {
+			Email   string `json:"email"`
+			Phone   string `json:"phone"`
+			IP      string `json:"ip"`
+			Account string `json:"account"`
+		} `json:"customer"`
 	}
 
 	Amount struct {
@@ -42,31 +61,10 @@ type (
 		Params      checkout.Metadata `json:"params"`
 	}
 
-	Request struct {
-		MerchantID    string   `json:"merchantId"`
-		TestMode      bool     `json:"testMode"`
-		Invoice       Invoice  `json:"invoice"`
-		Amount        Amount   `json:"amount"`
-		Protocol      Protocol `json:"protocol"`
-		PaymentMethod string   `json:"paymentMethod"`
-
-		Tokenization struct {
-			Type        string `json:"type"`
-			Purpose     string `json:"purpose"`
-			CallbackURL string `json:"callbackUrl"`
-		} `json:"tokenization"`
-
-		Customer struct {
-			Email   string `json:"email"`
-			Phone   string `json:"phone"`
-			IP      string `json:"ip"`
-			Account string `json:"account"`
-		} `json:"customer"`
-
-		Receipt struct {
-			Client Client       `json:"client"`
-			Items  ReceiptItems `json:"items"`
-		} `json:"receipt"`
+	Tokenization struct {
+		Type        string `json:"type"`
+		Purpose     string `json:"purpose"`
+		CallbackURL string `json:"callbackUrl"`
 	}
 
 	Payment struct {
@@ -86,25 +84,17 @@ type (
 	}
 )
 
-func (c Checkout) Request(payment checkout.Payment) (string, error) {
-	if c.BaseURL == "" {
-		c.BaseURL = BaseURL
-	}
+func (c Checkout) CustomRequest(id string, r Request) (string, error) {
+	end := c.BaseURL + "/invoices"
 
-	data, err := json.Marshal(Request{
-		MerchantID:    payment.MerchantID,
-		PaymentMethod: payment.PaymentMethod,
-		Invoice:       Invoice{Description: payment.Comment},
-		Amount:        Amount{Value: payment.Amount, Currency: payment.Currency},
-		Protocol:      Protocol{ReturnURL: payment.SuccessURL, CallbackURL: payment.CallbackURL},
-	})
+	data, err := json.Marshal(r)
 	if err != nil {
 		return "", err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, BaseURL+"/invoices", bytes.NewReader(data))
-	req.Header.Set("Authorization", c.AuthToken)
-	req.Header.Set("Idempotency-Key", payment.ID)
+	req, err := http.NewRequest(http.MethodPost, end, bytes.NewReader(data))
+	req.Header.Set("Authorization", c.Token)
+	req.Header.Set("Idempotency-Key", id)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -121,6 +111,28 @@ func (c Checkout) Request(payment checkout.Payment) (string, error) {
 	}
 
 	return result.URL, dec.Decode(&result)
+}
+
+func (c Checkout) Request(p checkout.Payment) (string, error) {
+	return c.CustomRequest(p.ID, Request{
+		MerchantID:    c.MerchantID,
+		PaymentMethod: p.PaymentMethod,
+		Protocol:      Protocol{ReturnURL: p.SuccessURL},
+
+		Invoice: Invoice{
+			Description: p.Comment,
+			Params:      p.Metadata,
+		},
+		Amount: Amount{
+			Value:    p.Amount,
+			Currency: p.Currency,
+		},
+		Tokenization: Tokenization{
+			Type:        p.Type,
+			Purpose:     p.Comment,
+			CallbackURL: p.CallbackURL,
+		},
+	})
 }
 
 func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
