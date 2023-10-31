@@ -95,7 +95,7 @@ func (c Checkout) CustomRequest(id string, r Request) (string, error) {
 	}
 
 	req, err := http.NewRequest(http.MethodPost, end, bytes.NewReader(data))
-	req.Header.Set("Authorization", c.Token)
+	req.Header.Set("Authorization", "Bearer "+c.Token)
 	req.Header.Set("Idempotency-Key", id)
 	req.Header.Set("Content-Type", "application/json")
 
