@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -87,48 +88,57 @@ type (
 	}
 )
 
-func (c Checkout) CustomRequest(id string, r Request) (string, error) {
-	end := c.BaseURL + "/invoices"
+func (c Checkout) Raw(end, ik string, v, r any) error {
+	end = c.BaseURL + "/" + end
 
-	data, err := json.Marshal(r)
+	data, err := json.Marshal(v)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, end, bytes.NewReader(data))
 	req.Header.Set("Authorization", "Bearer "+c.Token)
-	req.Header.Set("Idempotency-Key", id)
+	req.Header.Set("Idempotency-Key", ik)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return err
 	}
-
-	dec := json.NewDecoder(resp.Body)
 	defer resp.Body.Close()
 
-	var result struct {
+	data, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	var maybeError struct {
 		Code    string `json:"code"`
 		Message string `json:"message"`
-		ID      string `json:"paymentId"`
-		URL     string `json:"url"`
 	}
-	if err := dec.Decode(&result); err != nil {
-		return "", err
+
+	err = json.Unmarshal(data, &maybeError)
+	if err == nil && maybeError.Code != "" {
+		return fmt.Errorf(
+			"checkout/paymaster: %s (%s)",
+			maybeError.Code,
+			maybeError.Message,
+		)
 	}
-	if result.Code != "" {
-		return "", fmt.Errorf("checkout/paymaster: %s (%s)", result.Code, result.Message)
-	}
-	return result.URL, nil
+
+	return json.Unmarshal(data, r)
 }
 
 func (c Checkout) Request(p checkout.Payment) (string, error) {
-	return c.CustomRequest(p.ID, Request{
+	req := Request{
 		MerchantID:    c.MerchantID,
 		PaymentMethod: p.PaymentMethod,
-		Protocol:      &Protocol{ReturnURL: p.SuccessURL},
+		Customer:      &Customer{Account: p.Customer},
 
+		Protocol: &Protocol{
+			ReturnURL:   p.SuccessURL,
+			CallbackURL: p.CallbackURL,
+		},
 		Invoice: &Invoice{
 			Description: p.Comment,
 			Params:      p.Metadata,
@@ -143,10 +153,10 @@ func (c Checkout) Request(p checkout.Payment) (string, error) {
 			Purpose:     p.Comment,
 			CallbackURL: p.CallbackURL,
 		},
-		Customer: &Customer{
-			Account: p.Customer,
-		},
-	})
+	}
+
+	var result map[string]string
+	return result["url"], c.Raw("invoices", p.ID, req, &result)
 }
 
 func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
