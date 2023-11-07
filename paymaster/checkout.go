@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"go.massbots.xyz/checkout"
@@ -71,7 +72,7 @@ type (
 	}
 
 	Payment struct {
-		ID            string      `json:"id"`
+		ID            int         `json:"id"`
 		CreatedAt     time.Time   `json:"created"`
 		TestMode      bool        `json:"testMode"`
 		Status        string      `json:"status"`
@@ -170,7 +171,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 
 		payment := checkout.Payment{
 			Checkout: "paymaster",
-			ID:       p.ID,
+			ID:       strconv.Itoa(p.ID),
 			Amount:   p.Amount.Value,
 			Currency: p.Amount.Currency,
 			Comment:  p.Invoice.Description,
