@@ -73,8 +73,12 @@ type (
 	}
 
 	PaymentData struct {
-		PaymentMethod         string `json:"paymentMethod,omitempty"`
-		PaymentInstrumentTile string `json:"paymentInstrumentTile,omitempty"`
+		Method string  `json:"paymentMethod,omitempty"`
+		Token  TokenID `json:"token,omitempty"`
+	}
+
+	TokenID struct {
+		ID string `json:"id,omitempty"`
 	}
 
 	Payment struct {
