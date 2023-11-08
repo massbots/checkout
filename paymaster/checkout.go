@@ -178,6 +178,7 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 			Status:   statuses[p.Status],
 			Profit:   p.Amount.Value,
 			PaidAt:   p.CreatedAt,
+			Metadata: p.Invoice.Params,
 			V:        p,
 		}
 
