@@ -190,3 +190,17 @@ func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
 		w.WriteHeader(http.StatusOK)
 	})
 }
+
+func (a *Amount) UnmarshalJSON(b []byte) error {
+	var v struct {
+		Value    float64 `json:"value"`
+		Currency string  `json:"currency"`
+	}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+
+	a.Value = fmt.Sprint(v.Value)
+	a.Currency = v.Currency
+	return nil
+}
