@@ -39,6 +39,7 @@ type (
 		Tokenization  *Tokenization `json:"tokenization,omitempty"`
 		Receipt       *Receipt      `json:"receipt,omitempty"`
 		Customer      *Customer     `json:"customer,omitempty"`
+		PaymentData   *PaymentData  `json:"paymentData,omitempty"`
 	}
 
 	Amount struct {
@@ -71,36 +72,35 @@ type (
 		Account string `json:"account,omitempty"`
 	}
 
-	Payment struct {
-		ID            int         `json:"id"`
-		CreatedAt     time.Time   `json:"created"`
-		TestMode      bool        `json:"testMode"`
-		Status        string      `json:"status"`
-		MerchantID    string      `json:"merchantId"`
-		Invoice       Invoice     `json:"invoice"`
-		PaymentMethod string      `json:"paymentMethod"`
-		Amount        Amount      `json:"amount"`
-		PaymentData   PaymentData `json:"paymentData"`
+	PaymentData struct {
+		PaymentMethod         string `json:"paymentMethod,omitempty"`
+		PaymentInstrumentTile string `json:"paymentInstrumentTile,omitempty"`
 	}
 
-	PaymentData struct {
-		PaymentMethod         string `json:"paymentMethod"`
-		PaymentInstrumentTile string `json:"paymentInstrumentTile"`
+	Payment struct {
+		ID        int       `json:"id"`
+		CreatedAt time.Time `json:"created"`
+		Status    string    `json:"status"`
+		Invoice   Invoice   `json:"invoice"`
+		Amount    Amount    `json:"amount"`
 	}
 )
 
-func (c Checkout) Raw(end, ik string, v, r any) error {
+func (c Checkout) Raw(end string, r, v any, ik string) error {
 	end = c.BaseURL + "/" + end
 
-	data, err := json.Marshal(v)
+	data, err := json.Marshal(r)
 	if err != nil {
 		return err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, end, bytes.NewReader(data))
 	req.Header.Set("Authorization", "Bearer "+c.Token)
-	req.Header.Set("Idempotency-Key", ik)
 	req.Header.Set("Content-Type", "application/json")
+
+	if ik != "" {
+		req.Header.Set("Idempotency-Key", ik)
+	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -127,7 +127,7 @@ func (c Checkout) Raw(end, ik string, v, r any) error {
 		)
 	}
 
-	return json.Unmarshal(data, r)
+	return json.Unmarshal(data, v)
 }
 
 func (c Checkout) Request(p checkout.Payment) (string, error) {
@@ -157,7 +157,7 @@ func (c Checkout) Request(p checkout.Payment) (string, error) {
 	}
 
 	var result map[string]string
-	return result["url"], c.Raw("invoices", p.ID, req, &result)
+	return result["url"], c.Raw("invoices", req, &result, p.ID)
 }
 
 func (c Checkout) Webhook(callback checkout.Callback) http.Handler {
