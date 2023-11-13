@@ -18,7 +18,7 @@ type (
 		Status    string    `json:"status,omitempty"`
 
 		Client *ReceiptClient `json:"client,omitempty"` // request
-		Items  *ReceiptItems  `json:"items,omitempty"`  // request
+		Items  []*ReceiptItem `json:"items,omitempty"`  // request
 	}
 
 	ReceiptClient struct {
@@ -28,7 +28,7 @@ type (
 		INN   string `json:"INN,omitempty"`
 	}
 
-	ReceiptItems struct {
+	ReceiptItem struct {
 		Name           string           `json:"name,omitempty"`
 		Quantity       string           `json:"quantity,omitempty"` // decimal
 		Price          string           `json:"price,omitempty"`    // decimal
