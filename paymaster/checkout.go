@@ -55,7 +55,7 @@ type (
 	Invoice struct {
 		Description string            `json:"description,omitempty"`
 		OrderNumber string            `json:"orderNo,omitempty"`
-		Expires     time.Time         `json:"expires,omitempty"`
+		Expires     *time.Time        `json:"expires,omitempty"`
 		Params      checkout.Metadata `json:"params,omitempty"`
 	}
 

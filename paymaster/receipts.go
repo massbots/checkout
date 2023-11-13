@@ -10,12 +10,12 @@ import (
 
 type (
 	Receipt struct {
-		ID        string    `json:"id,omitempty"`
-		CreatedAt time.Time `json:"created,omitempty"`
-		PaymentID string    `json:"paymentId,omitempty"`
-		Amount    Amount    `json:"amount,omitempty"`
-		Type      string    `json:"type,omitempty"`
-		Status    string    `json:"status,omitempty"`
+		ID        string     `json:"id,omitempty"`
+		CreatedAt *time.Time `json:"created,omitempty"`
+		PaymentID string     `json:"paymentId,omitempty"`
+		Amount    Amount     `json:"amount,omitempty"`
+		Type      string     `json:"type,omitempty"`
+		Status    string     `json:"status,omitempty"`
 
 		Client *ReceiptClient `json:"client,omitempty"` // request
 		Items  []*ReceiptItem `json:"items,omitempty"`  // request
