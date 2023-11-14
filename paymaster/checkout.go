@@ -147,7 +147,7 @@ func (c Checkout) Request(p checkout.Payment) (string, error) {
 		Invoice: &Invoice{
 			Description: p.Comment,
 			Params:      p.Metadata,
-			Expires:     p.ExpirationDate, // a must
+			Expires:     &p.ExpirationDate, // a must
 		},
 		Amount: &Amount{
 			Value:    p.Amount,
