@@ -117,6 +117,16 @@ func (c Checkout) Raw(end string, r, v any, ik string) error {
 		return err
 	}
 
+	if len(data) == 0 {
+		if resp.StatusCode == http.StatusOK {
+			return nil
+		}
+		return fmt.Errorf(
+			"checkout/paymaster: %d",
+			resp.StatusCode,
+		)
+	}
+
 	var maybeError struct {
 		Code    string `json:"code"`
 		Message string `json:"message"`
