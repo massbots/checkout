@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"go.massbots.xyz/checkout"
@@ -128,12 +129,22 @@ func (c Checkout) RawMethod(method string, end string, r, v any, ik string) erro
 	}
 
 	var maybeError struct {
-		Code    string `json:"code"`
-		Message string `json:"message"`
+		Code    string   `json:"code"`
+		Message string   `json:"message"`
+		Errors  []string `json:"errors"`
 	}
 
 	err = json.Unmarshal(data, &maybeError)
 	if err == nil && maybeError.Code != "" {
+		if len(maybeError.Errors) > 0 {
+			return fmt.Errorf(
+				"checkout/paymaster: %s (%s) (errors: %s)",
+				maybeError.Code,
+				maybeError.Message,
+				strings.Join(maybeError.Errors, " "),
+			)
+		}
+
 		return fmt.Errorf(
 			"checkout/paymaster: %s (%s)",
 			maybeError.Code,
