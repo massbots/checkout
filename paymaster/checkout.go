@@ -90,7 +90,7 @@ type (
 	}
 )
 
-func (c Checkout) Raw(end string, r, v any, ik string) error {
+func (c Checkout) RawMethod(method string, end string, r, v any, ik string) error {
 	end = c.BaseURL + "/" + end
 
 	data, err := json.Marshal(r)
@@ -98,7 +98,7 @@ func (c Checkout) Raw(end string, r, v any, ik string) error {
 		return err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, end, bytes.NewReader(data))
+	req, err := http.NewRequest(method, end, bytes.NewReader(data))
 	req.Header.Set("Authorization", "Bearer "+c.Token)
 	req.Header.Set("Content-Type", "application/json")
 
@@ -117,6 +117,16 @@ func (c Checkout) Raw(end string, r, v any, ik string) error {
 		return err
 	}
 
+	if len(data) == 0 {
+		if resp.StatusCode == http.StatusOK {
+			return nil
+		}
+		return fmt.Errorf(
+			"checkout/paymaster: %d",
+			resp.StatusCode,
+		)
+	}
+
 	var maybeError struct {
 		Code    string `json:"code"`
 		Message string `json:"message"`
@@ -132,6 +142,10 @@ func (c Checkout) Raw(end string, r, v any, ik string) error {
 	}
 
 	return json.Unmarshal(data, v)
+}
+
+func (c Checkout) Raw(end string, r, v any, ik string) error {
+	return c.RawMethod(http.MethodPost, end, r, v, ik)
 }
 
 func (c Checkout) Request(p checkout.Payment) (string, error) {
