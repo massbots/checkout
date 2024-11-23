@@ -23,9 +23,17 @@ var statuses = map[string]int{
 
 // Checkout implements checkout.Checkout.
 type Checkout struct {
+	Client     *http.Client
 	BaseURL    string
 	Token      string
 	MerchantID string
+}
+
+func New(token, merchantID string) Checkout {
+	return Checkout{
+		Client:  http.DefaultClient,
+		BaseURL: BaseURL,
+	}
 }
 
 type (
@@ -99,6 +107,10 @@ func (c Checkout) RawMethod(method string, end string, r, v any, ik string) erro
 	}
 
 	req, err := http.NewRequest(method, end, bytes.NewReader(data))
+	if err != nil {
+		return err
+	}
+
 	req.Header.Set("Authorization", "Bearer "+c.Token)
 	req.Header.Set("Content-Type", "application/json")
 
@@ -106,7 +118,7 @@ func (c Checkout) RawMethod(method string, end string, r, v any, ik string) erro
 		req.Header.Set("Idempotency-Key", ik)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.Client.Do(req)
 	if err != nil {
 		return err
 	}
