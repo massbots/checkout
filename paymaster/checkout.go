@@ -31,8 +31,10 @@ type Checkout struct {
 
 func New(token, merchantID string) Checkout {
 	return Checkout{
-		Client:  http.DefaultClient,
-		BaseURL: BaseURL,
+		Client:     http.DefaultClient,
+		BaseURL:    BaseURL,
+		Token:      token,
+		MerchantID: merchantID,
 	}
 }
 
@@ -134,8 +136,9 @@ func (c Checkout) RawMethod(method string, end string, r, v any, ik string) erro
 			return nil
 		}
 		return fmt.Errorf(
-			"checkout/paymaster: %d",
+			"checkout/paymaster: (%d) %v",
 			resp.StatusCode,
+			string(data),
 		)
 	}
 
